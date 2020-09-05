@@ -37,13 +37,12 @@ def inject_payload(
         vector: bytes,
         index: int,
         payload: str) -> bytes:
-
-    bin_payload = bin(int(binascii.hexlify(payload), 16))
+    bin_payload = bytes(payload, 'utf-8')
 
     pre_payload = vector[:index + len(BIN_MAGIC_NUMBER)]
     post_payload = vector[index + len(BIN_MAGIC_NUMBER) + len(bin_payload):]
 
-    return (pre_payload + bin_payload + post_payload + '\n')
+    return (pre_payload + bin_payload + post_payload + bytes('\n', 'utf-8'))
 
 if __name__ == "__main__":
     if len(sys.argv) != 4:
